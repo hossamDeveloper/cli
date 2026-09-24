@@ -71,6 +71,7 @@ const STATUS_COLORS: Record<string, string> = {
   "غير نشط": "bg-gray-200 text-gray-600 dark:bg-gray-700/50 dark:text-gray-300",
   "قادم": "bg-blue-100 text-blue-700 dark:bg-blue-900/40 dark:text-blue-300",
   "مؤكد": "bg-indigo-100 text-indigo-700 dark:bg-indigo-900/40 dark:text-indigo-300",
+  "تم الحضور": "bg-teal-100 text-teal-700 dark:bg-teal-900/40 dark:text-teal-300",
   "ملغي": "bg-red-100 text-red-700 dark:bg-red-900/40 dark:text-red-300",
   "لم يحضر": "bg-orange-100 text-orange-700 dark:bg-orange-900/40 dark:text-orange-300",
   "مؤجل": "bg-purple-100 text-purple-700 dark:bg-purple-900/40 dark:text-purple-300",

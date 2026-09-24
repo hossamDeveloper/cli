@@ -1,7 +1,7 @@
 export const CUSTOMER_STATUSES = ["جديد", "نشط", "متابعة", "مكتمل", "غير نشط"] as const;
 export type CustomerStatus = (typeof CUSTOMER_STATUSES)[number];
 
-export const APPOINTMENT_STATUSES = ["قادم", "مؤكد", "مكتمل", "ملغي", "لم يحضر", "مؤجل"] as const;
+export const APPOINTMENT_STATUSES = ["قادم", "مؤكد", "تم الحضور", "مكتمل", "ملغي", "لم يحضر", "مؤجل"] as const;
 export type AppointmentStatus = (typeof APPOINTMENT_STATUSES)[number];
 
 export interface Customer {

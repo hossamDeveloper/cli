@@ -1,4 +1,4 @@
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { toast } from "sonner";
 import { Plus, Download, Upload, ChevronRight, ChevronLeft, LayoutGrid, List, Pencil, Trash2 } from "lucide-react";
 import {
@@ -31,6 +31,12 @@ export default function AppointmentsPage() {
   const [editingAppt, setEditingAppt] = useState<Appointment | null>(null);
   const [importOpen, setImportOpen] = useState(false);
   const [toDelete, setToDelete] = useState<{ id: string; label: string } | null>(null);
+
+  useEffect(() => {
+    const handleAppointmentsUpdated = () => refresh();
+    window.addEventListener("appointments-updated", handleAppointmentsUpdated);
+    return () => window.removeEventListener("appointments-updated", handleAppointmentsUpdated);
+  }, []);
 
   const customers = getCustomers();
   const customerById = useMemo(() => new Map(customers.map((c) => [c.id, c])), [customers]);
@@ -204,7 +210,7 @@ function CalendarView({
 }
 
 function AppointmentChip({ a, name, onClick, detailed }: { a: Appointment; name?: string; onClick: () => void; detailed?: boolean }) {
-  const colors: Record<string, string> = { "قادم": "bg-blue-500", "مؤكد": "bg-indigo-500", "مكتمل": "bg-emerald-500", "ملغي": "bg-red-500", "لم يحضر": "bg-orange-500", "مؤجل": "bg-purple-500" };
+  const colors: Record<string, string> = { "قادم": "bg-blue-500", "مؤكد": "bg-indigo-500", "تم الحضور": "bg-teal-500", "مكتمل": "bg-emerald-500", "ملغي": "bg-red-500", "لم يحضر": "bg-orange-500", "مؤجل": "bg-purple-500" };
   if (detailed) {
     return (
       <button onClick={onClick} className="w-full text-right surface-hover border rounded-lg p-3 flex items-center justify-between" style={{ borderColor: "var(--border)" }}>

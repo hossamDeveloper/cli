@@ -1,5 +1,5 @@
 import { useEffect } from "react";
-import { getReminders, saveReminders, getAppointments } from "../data/appointmentsStorage";
+import { getReminders, saveReminders, getAppointments, markExpiredAppointmentsAsAttended } from "../data/appointmentsStorage";
 import { getCustomers } from "../data/customersStorage";
 import { addNotification } from "../data/notificationsStorage";
 
@@ -13,6 +13,8 @@ function formatArabicTime(hhmm: string) {
 }
 
 function processDueReminders() {
+  const attendedCount = markExpiredAppointmentsAsAttended();
+  if (attendedCount > 0) window.dispatchEvent(new CustomEvent("appointments-updated"));
   const reminders = getReminders();
   const due = reminders.filter((r) => !r.sent && new Date(r.scheduledAt).getTime() <= Date.now());
   if (due.length === 0) return;
@@ -24,7 +26,7 @@ function processDueReminders() {
   const updated = reminders.map((r) => {
     if (!due.includes(r)) return r;
     const appt = appointments.find((a) => a.id === r.appointmentId);
-    if (!appt || ["ملغي", "مكتمل"].includes(appt.status)) return { ...r, sent: true };
+    if (!appt || ["ملغي", "تم الحضور", "مكتمل"].includes(appt.status)) return { ...r, sent: true };
 
     const customer = customers.find((c) => c.id === appt.customerId);
     const name = customer?.name || "العميل";

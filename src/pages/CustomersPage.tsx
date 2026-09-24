@@ -3,7 +3,7 @@ import { toast } from "sonner";
 import { Plus, Download, Upload, Search, Settings, Pencil, Trash2, ChevronRight, ChevronLeft } from "lucide-react";
 import { format } from "date-fns";
 import { Customer, CUSTOMER_STATUSES } from "../types";
-import { getCustomers, deleteCustomer, getCustomerTypes, addCustomer, updateCustomer, findCustomerByPhone } from "../data/customersStorage";
+import { getCustomers, deleteCustomer, getCustomerTypes, addCustomer, addCustomerType, updateCustomer, findCustomerByPhone } from "../data/customersStorage";
 import { readList, writeList, STORAGE_KEYS } from "../data/storage";
 import { CustomerNote } from "../types";
 import { getAppointmentsForCustomer } from "../data/appointmentsStorage";
@@ -202,6 +202,12 @@ export default function CustomersPage() {
             if (!r.data) return;
             const existing = findCustomerByPhone(r.data.phone);
             const { importedNotes, ...customerData } = r.data as any;
+            if (customerData.customerTypeId) {
+              const customerTypes = getCustomerTypes();
+              const typeValue = customerData.customerTypeId;
+              const knownType = customerTypes.find((type) => type.id === typeValue || type.name === typeValue);
+              customerData.customerTypeId = knownType?.id || addCustomerType(typeValue).id;
+            }
             const savedCustomer = existing ? updateCustomer(existing.id, customerData) : addCustomer(customerData);
             if (savedCustomer && importedNotes?.length) {
               const allNotes = readList<CustomerNote>(STORAGE_KEYS.customerNotes);

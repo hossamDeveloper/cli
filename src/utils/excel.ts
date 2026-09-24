@@ -32,6 +32,10 @@ function sheetToRows(wb: XLSX.WorkBook, sheetName: string): any[] {
   return XLSX.utils.sheet_to_json(sheet, { defval: "" });
 }
 
+function normalizeCustomerTypeName(name: string) {
+  return name.replace(/[\u064B-\u065F\u0670]/g, "").replace(/[إأآ]/g, "ا").replace(/ى/g, "ي").replace(/\s+/g, " ").trim().toLowerCase();
+}
+
 export interface PreviewRow<T> {
   row: number;
   valid: boolean;
@@ -89,7 +93,7 @@ export async function previewCustomersImport(
   const wb = await readWorkbookFromFile(file);
   const rows = sheetToRows(wb, wb.SheetNames[0]);
   const noteRows = sheetToRows(wb, wb.SheetNames.find((name) => name === "ملاحظات") || "");
-  const typeByName = new Map(types.map((t) => [t.name.trim(), t.id]));
+  const typeByName = new Map(types.map((t) => [normalizeCustomerTypeName(t.name), t.id]));
   const existingPhones = new Set(existingCustomers.map((c) => c.phone));
   const seen = new Set<string>();
   const notesByPhone = new Map<string, CustomerNote[]>();
@@ -112,11 +116,10 @@ export async function previewCustomersImport(
     const name = String(row["الاسم"] || "").trim();
     const phone = String(row["الهاتف"] || "").trim();
     const typeNameVal = String(row["نوع العميل"] || "").trim();
+    const normalizedTypeName = normalizeCustomerTypeName(typeNameVal);
 
     if (!name) errors.push("الاسم مطلوب");
     if (!phone) errors.push("رقم الهاتف مطلوب");
-    if (typeNameVal && !typeByName.has(typeNameVal)) errors.push("نوع العميل غير موجود");
-
     const existing = phone ? existingPhones.has(phone) : false;
     let duplicate = false;
     if (phone && seen.has(phone)) {
@@ -135,7 +138,8 @@ export async function previewCustomersImport(
         name, phone,
         whatsapp: String(row["WhatsApp"] || "").trim() || undefined,
         email: String(row["Email"] || "").trim() || undefined,
-        customerTypeId: typeNameVal ? typeByName.get(typeNameVal) : undefined,
+        // Keep unknown type names temporarily; the commit step creates them.
+        customerTypeId: typeNameVal ? typeByName.get(normalizedTypeName) || typeNameVal : undefined,
         company: String(row["الشركة"] || "").trim() || undefined,
         jobTitle: String(row["الوظيفة"] || "").trim() || undefined,
         address: String(row["العنوان"] || "").trim() || undefined,
